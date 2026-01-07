@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter (dev env.json)",
+      "type": "dart",
+      "request": "launch",
+      "program": "viesmfix/viesmfix/lib/main.dart",
+      "cwd": "viesmfix/viesmfix",
+      "toolArgs": [
+        "--dart-define-from-file=env.dev.json"
+      ]
+    }
+  ]
+}

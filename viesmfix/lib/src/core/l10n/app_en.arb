@@ -1,0 +1,512 @@
+{
+  "@@locale": "en",
+  "appName": "ViesMFix",
+  "@appName": {
+    "description": "Application name"
+  },
+  
+  "home": "Home",
+  "@home": {
+    "description": "Home navigation label"
+  },
+  
+  "search": "Search",
+  "@search": {
+    "description": "Search navigation label"
+  },
+  
+  "watchlist": "Watchlist",
+  "@watchlist": {
+    "description": "Watchlist navigation label"
+  },
+  
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile navigation label"
+  },
+  
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings label"
+  },
+  
+  "language": "Language",
+  "@language": {
+    "description": "Language setting label"
+  },
+  
+  "theme": "Theme",
+  "@theme": {
+    "description": "Theme setting label"
+  },
+  
+  "darkMode": "Dark Mode",
+  "@darkMode": {
+    "description": "Dark mode label"
+  },
+  
+  "lightMode": "Light Mode",
+  "@lightMode": {
+    "description": "Light mode label"
+  },
+  
+  "systemDefault": "System Default",
+  "@systemDefault": {
+    "description": "System default theme option"
+  },
+  
+  "trending": "Trending",
+  "@trending": {
+    "description": "Trending movies section"
+  },
+  
+  "popular": "Popular",
+  "@popular": {
+    "description": "Popular movies section"
+  },
+  
+  "topRated": "Top Rated",
+  "@topRated": {
+    "description": "Top rated movies section"
+  },
+  
+  "upcomingMovies": "Upcoming Movies",
+  "@upcomingMovies": {
+    "description": "Upcoming movies section"
+  },
+  
+  "nowPlaying": "Now Playing",
+  "@nowPlaying": {
+    "description": "Now playing movies section"
+  },
+  
+  "searchMovies": "Search movies...",
+  "@searchMovies": {
+    "description": "Search placeholder text"
+  },
+  
+  "noResults": "No results found",
+  "@noResults": {
+    "description": "No search results message"
+  },
+  
+  "tryDifferentSearch": "Try a different search term",
+  "@tryDifferentSearch": {
+    "description": "Suggestion when no results found"
+  },
+  
+  "addToWatchlist": "Add to Watchlist",
+  "@addToWatchlist": {
+    "description": "Add to watchlist action"
+  },
+  
+  "removeFromWatchlist": "Remove from Watchlist",
+  "@removeFromWatchlist": {
+    "description": "Remove from watchlist action"
+  },
+  
+  "rateMovie": "Rate Movie",
+  "@rateMovie": {
+    "description": "Rate movie action"
+  },
+  
+  "writeReview": "Write Review",
+  "@writeReview": {
+    "description": "Write review action"
+  },
+  
+  "share": "Share",
+  "@share": {
+    "description": "Share action"
+  },
+  
+  "watchTrailer": "Watch Trailer",
+  "@watchTrailer": {
+    "description": "Watch trailer action"
+  },
+  
+  "moodMatcher": "Mood Matcher",
+  "@moodMatcher": {
+    "description": "Mood matcher feature"
+  },
+  
+  "howAreYouFeeling": "How are you feeling?",
+  "@howAreYouFeeling": {
+    "description": "Mood matcher question"
+  },
+  
+  "watchParties": "Watch Parties",
+  "@watchParties": {
+    "description": "Watch parties feature"
+  },
+  
+  "createParty": "Create Party",
+  "@createParty": {
+    "description": "Create party action"
+  },
+  
+  "joinParty": "Join Party",
+  "@joinParty": {
+    "description": "Join party action"
+  },
+  
+  "trivia": "Trivia",
+  "@trivia": {
+    "description": "Trivia feature"
+  },
+  
+  "startQuiz": "Start Quiz",
+  "@startQuiz": {
+    "description": "Start quiz action"
+  },
+  
+  "yourScore": "Your Score",
+  "@yourScore": {
+    "description": "Quiz score label"
+  },
+  
+  "achievements": "Achievements",
+  "@achievements": {
+    "description": "Achievements label"
+  },
+  
+  "level": "Level",
+  "@level": {
+    "description": "User level label"
+  },
+  
+  "streak": "Streak",
+  "@streak": {
+    "description": "Watch streak label"
+  },
+  
+  "daysStreak": "{count} days",
+  "@daysStreak": {
+    "description": "Days in streak",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "movieDNA": "Movie DNA",
+  "@movieDNA": {
+    "description": "Movie DNA feature"
+  },
+  
+  "yourTasteProfile": "Your Taste Profile",
+  "@yourTasteProfile": {
+    "description": "Taste profile label"
+  },
+  
+  "journal": "Journal",
+  "@journal": {
+    "description": "Cinematic journal feature"
+  },
+  
+  "addEntry": "Add Entry",
+  "@addEntry": {
+    "description": "Add journal entry action"
+  },
+  
+  "signIn": "Sign In",
+  "@signIn": {
+    "description": "Sign in action"
+  },
+  
+  "signUp": "Sign Up",
+  "@signUp": {
+    "description": "Sign up action"
+  },
+  
+  "signOut": "Sign Out",
+  "@signOut": {
+    "description": "Sign out action"
+  },
+  
+  "email": "Email",
+  "@email": {
+    "description": "Email field label"
+  },
+  
+  "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  },
+  
+  "forgotPassword": "Forgot Password?",
+  "@forgotPassword": {
+    "description": "Forgot password link"
+  },
+  
+  "continueWithGoogle": "Continue with Google",
+  "@continueWithGoogle": {
+    "description": "Google sign in button"
+  },
+  
+  "continueWithApple": "Continue with Apple",
+  "@continueWithApple": {
+    "description": "Apple sign in button"
+  },
+  
+  "genres": "Genres",
+  "@genres": {
+    "description": "Genres label"
+  },
+  
+  "cast": "Cast",
+  "@cast": {
+    "description": "Movie cast label"
+  },
+  
+  "director": "Director",
+  "@director": {
+    "description": "Movie director label"
+  },
+  
+  "releaseDate": "Release Date",
+  "@releaseDate": {
+    "description": "Release date label"
+  },
+  
+  "runtime": "Runtime",
+  "@runtime": {
+    "description": "Movie runtime label"
+  },
+  
+  "minutesShort": "{count}m",
+  "@minutesShort": {
+    "description": "Minutes abbreviation",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "rating": "Rating",
+  "@rating": {
+    "description": "Rating label"
+  },
+  
+  "reviews": "Reviews",
+  "@reviews": {
+    "description": "Reviews label"
+  },
+  
+  "similarMovies": "Similar Movies",
+  "@similarMovies": {
+    "description": "Similar movies section"
+  },
+  
+  "recommendations": "Recommendations",
+  "@recommendations": {
+    "description": "Recommendations section"
+  },
+  
+  "favorites": "Favorites",
+  "@favorites": {
+    "description": "Favorites label"
+  },
+  
+  "filters": "Filters",
+  "@filters": {
+    "description": "Filters label"
+  },
+  
+  "sortBy": "Sort By",
+  "@sortBy": {
+    "description": "Sort by label"
+  },
+  
+  "apply": "Apply",
+  "@apply": {
+    "description": "Apply action"
+  },
+  
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel action"
+  },
+  
+  "save": "Save",
+  "@save": {
+    "description": "Save action"
+  },
+  
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete action"
+  },
+  
+  "edit": "Edit",
+  "@edit": {
+    "description": "Edit action"
+  },
+  
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Loading state message"
+  },
+  
+  "error": "Error",
+  "@error": {
+    "description": "Error label"
+  },
+  
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry action"
+  },
+  
+  "notifications": "Notifications",
+  "@notifications": {
+    "description": "Notifications label"
+  },
+  
+  "privacy": "Privacy",
+  "@privacy": {
+    "description": "Privacy label"
+  },
+  
+  "about": "About",
+  "@about": {
+    "description": "About label"
+  },
+  
+  "version": "Version",
+  "@version": {
+    "description": "App version label"
+  },
+  
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout action"
+  },
+  
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirm action"
+  },
+  
+  "close": "Close",
+  "@close": {
+    "description": "Close action"
+  },
+  
+  "news": "News",
+  "@news": {
+    "description": "News navigation label"
+  },
+  
+  "newsHeadlines": "Headlines",
+  "@newsHeadlines": {
+    "description": "News headlines label"
+  },
+  
+  "newsSearch": "Search News",
+  "@newsSearch": {
+    "description": "News search label"
+  },
+  
+  "newsBookmarks": "Bookmarked Articles",
+  "@newsBookmarks": {
+    "description": "Bookmarked news articles label"
+  },
+  
+  "newsGeneral": "General",
+  "@newsGeneral": {
+    "description": "General news category"
+  },
+  
+  "newsTechnology": "Technology",
+  "@newsTechnology": {
+    "description": "Technology news category"
+  },
+  
+  "newsSports": "Sports",
+  "@newsSports": {
+    "description": "Sports news category"
+  },
+  
+  "newsBusiness": "Business",
+  "@newsBusiness": {
+    "description": "Business news category"
+  },
+  
+  "newsEntertainment": "Entertainment",
+  "@newsEntertainment": {
+    "description": "Entertainment news category"
+  },
+  
+  "newsScience": "Science",
+  "@newsScience": {
+    "description": "Science news category"
+  },
+  
+  "newsHealth": "Health",
+  "@newsHealth": {
+    "description": "Health news category"
+  },
+  
+  "newsNoArticles": "No news articles found",
+  "@newsNoArticles": {
+    "description": "Empty news state message"
+  },
+  
+  "newsLoadFailed": "Failed to load news",
+  "@newsLoadFailed": {
+    "description": "News loading error message"
+  },
+  
+  "newsSearchPlaceholder": "Search news...",
+  "@newsSearchPlaceholder": {
+    "description": "News search input placeholder"
+  },
+  
+  "newsNoBookmarks": "No bookmarks yet",
+  "@newsNoBookmarks": {
+    "description": "Empty bookmarks message"
+  },
+  
+  "newsBookmarkHint": "Bookmark articles to read later",
+  "@newsBookmarkHint": {
+    "description": "Bookmark hint message"
+  },
+  
+  "newsReadFullArticle": "Read Full Article",
+  "@newsReadFullArticle": {
+    "description": "Read full article button"
+  },
+  
+  "newsShare": "Share Article",
+  "@newsShare": {
+    "description": "Share article action"
+  },
+  
+  "newsRemoveBookmark": "Remove Bookmark",
+  "@newsRemoveBookmark": {
+    "description": "Remove bookmark dialog title"
+  },
+  
+  "newsRemoveBookmarkMessage": "Remove this article from bookmarks?",
+  "@newsRemoveBookmarkMessage": {
+    "description": "Remove bookmark confirmation message"
+  },
+  
+  "newsRateLimitError": "Rate Limit Exceeded",
+  "@newsRateLimitError": {
+    "description": "Rate limit error message"
+  },
+  
+  "newsConnectionError": "Connection Error",
+  "@newsConnectionError": {
+    "description": "Connection error message"
+  },
+  
+  "newsAuthError": "Authentication Error",
+  "@newsAuthError": {
+    "description": "Authentication error message"
+  }
+}
