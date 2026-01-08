@@ -66,8 +66,7 @@ dependencies:
   blurhash_dart: ^1.2.1
   image_picker: ^1.0.5
   
-  # Notifications
-  firebase_messaging: ^15.1.0
+  # Notifications (local only; push can be added back on mobile later)
   flutter_local_notifications: ^17.2.3
   
   # Charts

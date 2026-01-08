@@ -244,3 +244,226 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
+
+-- Storage Buckets
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM storage.buckets WHERE id = 'avatars') THEN
+    INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true);
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM storage.buckets WHERE id = 'review-images') THEN
+    INSERT INTO storage.buckets (id, name, public) VALUES ('review-images', 'review-images', true);
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM storage.buckets WHERE id = 'posters') THEN
+    INSERT INTO storage.buckets (id, name, public) VALUES ('posters', 'posters', true);
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM storage.buckets WHERE id = 'backdrops') THEN
+    INSERT INTO storage.buckets (id, name, public) VALUES ('backdrops', 'backdrops', true);
+  END IF;
+
+  -- Optional: set mime types and size limits if columns exist
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema='storage' AND table_name='buckets' AND column_name='allowed_mime_types'
+  ) THEN
+    UPDATE storage.buckets
+      SET allowed_mime_types = ARRAY['image/png','image/jpeg','image/webp','image/gif']
+      WHERE id IN ('avatars','review-images');
+    UPDATE storage.buckets
+      SET allowed_mime_types = ARRAY['image/png','image/jpeg','image/webp']
+      WHERE id IN ('posters','backdrops');
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema='storage' AND table_name='buckets' AND column_name='file_size_limit'
+  ) THEN
+    UPDATE storage.buckets SET file_size_limit = (5*1024*1024)::bigint WHERE id = 'avatars';
+    UPDATE storage.buckets SET file_size_limit = (10*1024*1024)::bigint WHERE id IN ('review-images','posters');
+    UPDATE storage.buckets SET file_size_limit = (15*1024*1024)::bigint WHERE id = 'backdrops';
+  END IF;
+END$$;
+
+-- Storage RLS policies
+-- Public read for buckets; authenticated users manage only their own objects
+
+-- Public read
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Public read avatars'
+  ) THEN
+    CREATE POLICY "Public read avatars" ON storage.objects
+    FOR SELECT USING (bucket_id = 'avatars');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Public read review-images'
+  ) THEN
+    CREATE POLICY "Public read review-images" ON storage.objects
+    FOR SELECT USING (bucket_id = 'review-images');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Public read posters'
+  ) THEN
+    CREATE POLICY "Public read posters" ON storage.objects
+    FOR SELECT USING (bucket_id = 'posters');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Public read backdrops'
+  ) THEN
+    CREATE POLICY "Public read backdrops" ON storage.objects
+    FOR SELECT USING (bucket_id = 'backdrops');
+  END IF;
+END$$;
+
+-- Authenticated write/update/delete own objects by owner or path prefix {auth.uid()}/
+DO $$
+BEGIN
+  -- avatars
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Own avatars insert'
+  ) THEN
+    CREATE POLICY "Own avatars insert" ON storage.objects
+    FOR INSERT TO authenticated
+    WITH CHECK (
+      bucket_id = 'avatars' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Own avatars update'
+  ) THEN
+    CREATE POLICY "Own avatars update" ON storage.objects
+    FOR UPDATE TO authenticated
+    USING (
+      bucket_id = 'avatars' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    )
+    WITH CHECK (
+      bucket_id = 'avatars' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Own avatars delete'
+  ) THEN
+    CREATE POLICY "Own avatars delete" ON storage.objects
+    FOR DELETE TO authenticated
+    USING (
+      bucket_id = 'avatars' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    );
+  END IF;
+
+  -- review-images
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Own review-images insert'
+  ) THEN
+    CREATE POLICY "Own review-images insert" ON storage.objects
+    FOR INSERT TO authenticated
+    WITH CHECK (
+      bucket_id = 'review-images' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Own review-images update'
+  ) THEN
+    CREATE POLICY "Own review-images update" ON storage.objects
+    FOR UPDATE TO authenticated
+    USING (
+      bucket_id = 'review-images' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    )
+    WITH CHECK (
+      bucket_id = 'review-images' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Own review-images delete'
+  ) THEN
+    CREATE POLICY "Own review-images delete" ON storage.objects
+    FOR DELETE TO authenticated
+    USING (
+      bucket_id = 'review-images' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    );
+  END IF;
+
+  -- posters
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Own posters insert'
+  ) THEN
+    CREATE POLICY "Own posters insert" ON storage.objects
+    FOR INSERT TO authenticated
+    WITH CHECK (
+      bucket_id = 'posters' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Own posters update'
+  ) THEN
+    CREATE POLICY "Own posters update" ON storage.objects
+    FOR UPDATE TO authenticated
+    USING (
+      bucket_id = 'posters' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    )
+    WITH CHECK (
+      bucket_id = 'posters' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Own posters delete'
+  ) THEN
+    CREATE POLICY "Own posters delete" ON storage.objects
+    FOR DELETE TO authenticated
+    USING (
+      bucket_id = 'posters' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    );
+  END IF;
+
+  -- backdrops
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Own backdrops insert'
+  ) THEN
+    CREATE POLICY "Own backdrops insert" ON storage.objects
+    FOR INSERT TO authenticated
+    WITH CHECK (
+      bucket_id = 'backdrops' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Own backdrops update'
+  ) THEN
+    CREATE POLICY "Own backdrops update" ON storage.objects
+    FOR UPDATE TO authenticated
+    USING (
+      bucket_id = 'backdrops' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    )
+    WITH CHECK (
+      bucket_id = 'backdrops' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND policyname='Own backdrops delete'
+  ) THEN
+    CREATE POLICY "Own backdrops delete" ON storage.objects
+    FOR DELETE TO authenticated
+    USING (
+      bucket_id = 'backdrops' AND (owner = auth.uid() OR split_part(name, '/', 1) = auth.uid()::text)
+    );
+  END IF;
+END$$;
+
+-- Recommended upload paths:
+-- avatars:        avatars/{auth.uid()}/profile.png
+-- review-images:  review-images/{auth.uid()}/<uuid>.png
+-- posters:        posters/<tmdb_id>.jpg
+-- backdrops:      backdrops/<tmdb_id>.jpg

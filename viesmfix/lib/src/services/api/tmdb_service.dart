@@ -8,16 +8,39 @@ class TMDBService {
   static const String _imageBaseUrl = Environment.tmdbImageBaseUrl;
 
   late final Dio _dio;
+  late final bool _useV4Token;
 
   TMDBService() {
+    final rawKey = Environment.tmdbApiKey.trim();
+    // Heuristic: v4 token is a JWT (starts with 'eyJ' and contains '.')
+    _useV4Token =
+        rawKey.isNotEmpty && (rawKey.startsWith('eyJ') || rawKey.contains('.'));
+
     _dio = Dio(
       BaseOptions(
         baseUrl: _baseUrl,
         connectTimeout: Environment.apiConnectTimeout,
         receiveTimeout: Environment.apiReceiveTimeout,
-        headers: {
-          'Authorization': 'Bearer ${Environment.tmdbApiKey}',
-          'Content-Type': 'application/json;charset=utf-8',
+        headers: const {'Content-Type': 'application/json;charset=utf-8'},
+      ),
+    );
+
+    // Attach auth automatically for all requests
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          final key = Environment.tmdbApiKey.trim();
+          if (key.isNotEmpty) {
+            if (_useV4Token) {
+              options.headers['Authorization'] = 'Bearer $key';
+            } else {
+              // v3 key via query parameter
+              final qp = Map<String, dynamic>.from(options.queryParameters);
+              qp.putIfAbsent('api_key', () => key);
+              options.queryParameters = qp;
+            }
+          }
+          handler.next(options);
         },
       ),
     );
