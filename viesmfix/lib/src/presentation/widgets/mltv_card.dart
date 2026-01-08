@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MLTVCard extends StatelessWidget {
   final Map<String, dynamic> item;
@@ -8,36 +9,35 @@ class MLTVCard extends StatelessWidget {
   final double height;
 
   const MLTVCard({
-    super.key,
+    Key? key,
     required this.item,
+    required this.width,
+    required this.height,
     this.onTap,
-    this.width = 120,
-    this.height = 180,
-  });
+  }) : super(key: key);
 
-  String _pickPoster(Map<String, dynamic> m) {
-    final candidates = [
-      'poster',
-      'poster_url',
-      'posterPath',
-      'image',
-      'cover',
-      'thumbnail',
-    ];
-    for (final k in candidates) {
-      final v = m[k]?.toString();
-      if (v != null && v.isNotEmpty) return v;
-    }
-    return '';
+  String _pickPoster(Map<String, dynamic> item) {
+    return item['poster_path']?.toString() ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
     final title = (item['title'] ?? item['name'] ?? '').toString();
     final posterUrl = _pickPoster(item);
+    final videoUrl = item['video_url']?.toString();
+
+    Future<void> _launchVideo() async {
+      if (videoUrl == null || videoUrl.isEmpty) return;
+      final uri = Uri.tryParse(videoUrl);
+      if (uri != null && await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    }
 
     return GestureDetector(
-      onTap: onTap,
+      onTap:
+          onTap ??
+          (videoUrl != null && videoUrl.isNotEmpty ? _launchVideo : null),
       child: Container(
         width: width,
         height: height,
@@ -78,7 +78,20 @@ class MLTVCard extends StatelessWidget {
                   color: Colors.grey[900],
                   child: const Icon(Icons.movie, size: 48, color: Colors.grey),
                 ),
-
+              if (videoUrl != null && videoUrl.isNotEmpty)
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: Material(
+                    color: Colors.black54,
+                    shape: const CircleBorder(),
+                    child: IconButton(
+                      icon: const Icon(Icons.play_arrow, color: Colors.white),
+                      onPressed: _launchVideo,
+                      tooltip: 'Play',
+                    ),
+                  ),
+                ),
               Positioned(
                 bottom: 0,
                 left: 0,

@@ -108,6 +108,8 @@ class HomeScreen extends ConsumerWidget {
                       children: items.take(20).map((m) {
                         return MLTVCard(
                           item: m,
+                          width: 120,
+                          height: 180,
                           onTap: () {
                             // TODO: navigate to MLTV detail when wired
                           },
