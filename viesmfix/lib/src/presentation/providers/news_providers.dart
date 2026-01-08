@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:dartz/dartz.dart';
+import '../../core/errors/failures.dart';
 import '../../domain/entities/news_article_entity.dart';
 import '../../domain/repositories/news_repository.dart';
 import '../../domain/usecases/news_usecases.dart';
@@ -12,15 +14,19 @@ import 'common_providers.dart';
 // Data sources
 final dioProvider = Provider<Dio>((ref) => Dio());
 
-final supabaseClientProvider = Provider<SupabaseClient>((ref) {
-  return Supabase.instance.client;
+final supabaseClientProvider = Provider<SupabaseClient?>((ref) {
+  try {
+    return Supabase.instance.client;
+  } catch (_) {
+    // Supabase not initialized; return null so consumers can handle gracefully
+    return null;
+  }
 });
 
-final newsRemoteDataSourceProvider = Provider<NewsRemoteDataSource>((ref) {
-  return NewsRemoteDataSource(
-    dio: ref.watch(dioProvider),
-    supabase: ref.watch(supabaseClientProvider),
-  );
+final newsRemoteDataSourceProvider = Provider<NewsRemoteDataSource?>((ref) {
+  final client = ref.watch(supabaseClientProvider);
+  if (client == null) return null;
+  return NewsRemoteDataSource(dio: ref.watch(dioProvider), supabase: client);
 });
 
 final newsLocalDataSourceProvider = Provider<NewsLocalDataSource>((ref) {
@@ -29,11 +35,60 @@ final newsLocalDataSourceProvider = Provider<NewsLocalDataSource>((ref) {
 });
 
 // Repository
+class _DisabledNewsRepository implements NewsRepository {
+  Failure _err() => ServerFailure('News is disabled: Supabase not configured');
+  @override
+  Future<Either<Failure, List<NewsArticleEntity>>> getTopHeadlines({
+    NewsCategory? category,
+    String? country,
+    int page = 1,
+    int pageSize = 20,
+  }) async => Left(_err());
+  @override
+  Future<Either<Failure, List<NewsArticleEntity>>> searchNews({
+    required String query,
+    DateTime? from,
+    DateTime? to,
+    String? sortBy,
+    int page = 1,
+    int pageSize = 20,
+  }) async => Left(_err());
+  @override
+  Future<Either<Failure, List<NewsArticleEntity>>> getNewsBySource({
+    required String sourceId,
+    int page = 1,
+    int pageSize = 20,
+  }) async => Left(_err());
+  @override
+  Future<Either<Failure, List<NewsSourceEntity>>> getNewsSources({
+    NewsCategory? category,
+    String? language,
+    String? country,
+  }) async => Left(_err());
+  @override
+  Future<Either<Failure, void>> bookmarkArticle(
+    NewsArticleEntity article,
+  ) async => Left(_err());
+  @override
+  Future<Either<Failure, void>> removeBookmark(String articleId) async =>
+      Left(_err());
+  @override
+  Future<Either<Failure, List<BookmarkedArticleEntity>>>
+  getBookmarkedArticles() async => Left(_err());
+  @override
+  Future<Either<Failure, bool>> isArticleBookmarked(String articleId) async =>
+      Left(_err());
+  @override
+  Future<Either<Failure, void>> clearCache() async => Left(_err());
+}
+
 final newsRepositoryProvider = Provider<NewsRepository>((ref) {
-  return NewsRepositoryImpl(
-    remoteDataSource: ref.watch(newsRemoteDataSourceProvider),
-    localDataSource: ref.watch(newsLocalDataSourceProvider),
-  );
+  final remote = ref.watch(newsRemoteDataSourceProvider);
+  final local = ref.watch(newsLocalDataSourceProvider);
+  if (remote == null) {
+    return _DisabledNewsRepository();
+  }
+  return NewsRepositoryImpl(remoteDataSource: remote, localDataSource: local);
 });
 
 // Use cases

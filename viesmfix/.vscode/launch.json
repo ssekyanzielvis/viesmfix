@@ -1,0 +1,38 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter Windows (env.dev)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--dart-define-from-file=env.dev.json"
+      ],
+      "args": [
+        "-d",
+        "windows"
+      ]
+    },
+    {
+      "name": "Flutter Android (env.dev)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--dart-define-from-file=env.dev.json"
+      ],
+      "deviceId": "android"
+    },
+    {
+      "name": "Flutter Web (env.dev)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--dart-define-from-file=env.dev.json"
+      ],
+      "deviceId": "chrome"
+    }
+  ]
+}

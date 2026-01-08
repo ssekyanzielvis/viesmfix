@@ -1,4 +1,3 @@
-import 'package:postgrest/postgrest.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'genre_helper.dart';
 
@@ -55,7 +54,7 @@ class MLTVApi {
     String query = '',
   }) async {
     return _withPublishedFallback((usePublished) async {
-      var qb = supabase.from('movies').select('*');
+      var qb = supabase.from('movies').select('*, video_url');
       if (usePublished) qb = qb.eq('published', true);
       if (query.isNotEmpty) qb = qb.ilike('title', '%$query%');
       return _tryOrderColumns(['created_at', 'date', 'updated_at', 'id'], (

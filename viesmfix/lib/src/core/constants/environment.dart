@@ -1,4 +1,13 @@
 abstract class Environment {
+  // Optional: third Supabase project for video URLs
+  static const String supabaseVideoUrl = String.fromEnvironment(
+    'SUPABASE_VIDEO_URL',
+    defaultValue: '',
+  );
+  static const String supabaseVideoAnonKey = String.fromEnvironment(
+    'SUPABASE_VIDEO_ANON_KEY',
+    defaultValue: '',
+  );
   // These values should be set via --dart-define flags or environment variables
   static const String tmdbApiKey = String.fromEnvironment(
     'TMDB_API_KEY',
@@ -10,6 +19,16 @@ abstract class Environment {
   );
   static const String supabaseAnonKey = String.fromEnvironment(
     'SUPABASE_ANON_KEY',
+    defaultValue: '',
+  );
+
+  // Optional: secondary Supabase project for MLTV resources
+  static const String supabaseMltvUrl = String.fromEnvironment(
+    'SUPABASE_MLTV_URL',
+    defaultValue: '',
+  );
+  static const String supabaseMltvAnonKey = String.fromEnvironment(
+    'SUPABASE_MLTV_ANON_KEY',
     defaultValue: '',
   );
 
