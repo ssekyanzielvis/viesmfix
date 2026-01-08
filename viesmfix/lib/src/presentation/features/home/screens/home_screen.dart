@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../providers/movie_providers.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../widgets/movie_card.dart';
 import '../../../widgets/movie_section.dart';
 import '../../../widgets/loading_shimmer.dart';
+import '../../../providers/mltv_providers.dart';
+import '../../../widgets/mltv_card.dart';
 import '../../movie/screens/movie_detail_screen.dart';
 import '../../search/screens/search_screen.dart';
 
@@ -13,9 +16,11 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final trendingMovies = ref.watch(trendingMoviesProvider);
-    final popularMovies = ref.watch(popularMoviesProvider);
-    final upcomingMovies = ref.watch(upcomingMoviesProvider);
+    final trendingMovies = ref.watch(trendingFeedProvider);
+    final popularMovies = ref.watch(popularFeedProvider);
+    final upcomingMovies = ref.watch(upcomingFeedProvider);
+    final nowPlayingMovies = ref.watch(nowPlayingFeedProvider);
+    final mltvMovies = ref.watch(mltvMoviesFirstPageProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -27,6 +32,20 @@ class HomeScreen extends ConsumerWidget {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const SearchScreen()),
               );
+            },
+          ),
+          IconButton(
+            tooltip: 'News',
+            icon: const Icon(Icons.newspaper),
+            onPressed: () {
+              context.push('/news');
+            },
+          ),
+          IconButton(
+            tooltip: 'Sports',
+            icon: const Icon(Icons.sports_soccer),
+            onPressed: () {
+              context.push('/sports');
             },
           ),
           IconButton(
@@ -51,7 +70,7 @@ class HomeScreen extends ConsumerWidget {
             trendingMovies.when(
               data: (movies) => MovieSection(
                 title: 'Trending Now',
-                children: movies.take(10).map((movie) {
+                children: movies.take(20).map((movie) {
                   return MovieCard(
                     movie: movie,
                     onTap: () {
@@ -64,6 +83,9 @@ class HomeScreen extends ConsumerWidget {
                     },
                   );
                 }).toList(),
+                onSeeAll: () {
+                  ref.read(trendingFeedProvider.notifier).loadMore();
+                },
               ),
               loading: () => MovieSection(
                 title: 'Trending Now',
@@ -77,11 +99,43 @@ class HomeScreen extends ConsumerWidget {
 
             const SizedBox(height: 24),
 
+            // MLTV Latest Section
+            mltvMovies.when(
+              data: (items) => items.isEmpty
+                  ? const SizedBox.shrink()
+                  : MovieSection(
+                      title: 'From MLTV',
+                      children: items.take(20).map((m) {
+                        return MLTVCard(
+                          item: m,
+                          onTap: () {
+                            // TODO: navigate to MLTV detail when wired
+                          },
+                        );
+                      }).toList(),
+                    ),
+              loading: () => MovieSection(
+                title: 'From MLTV',
+                children: List.generate(
+                  5,
+                  (index) => const SizedBox(
+                    width: 120,
+                    height: 180,
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                ),
+              ),
+              error: (error, stack) => Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text('MLTV error: $error'),
+              ),
+            ),
+
             // Popular Section
             popularMovies.when(
               data: (movies) => MovieSection(
                 title: 'Popular',
-                children: movies.take(10).map((movie) {
+                children: movies.take(20).map((movie) {
                   return MovieCard(
                     movie: movie,
                     onTap: () {
@@ -94,6 +148,9 @@ class HomeScreen extends ConsumerWidget {
                     },
                   );
                 }).toList(),
+                onSeeAll: () {
+                  ref.read(popularFeedProvider.notifier).loadMore();
+                },
               ),
               loading: () => MovieSection(
                 title: 'Popular',
@@ -111,7 +168,7 @@ class HomeScreen extends ConsumerWidget {
             upcomingMovies.when(
               data: (movies) => MovieSection(
                 title: 'Coming Soon',
-                children: movies.take(10).map((movie) {
+                children: movies.take(20).map((movie) {
                   return MovieCard(
                     movie: movie,
                     onTap: () {
@@ -124,6 +181,9 @@ class HomeScreen extends ConsumerWidget {
                     },
                   );
                 }).toList(),
+                onSeeAll: () {
+                  ref.read(upcomingFeedProvider.notifier).loadMore();
+                },
               ),
               loading: () => MovieSection(
                 title: 'Coming Soon',
@@ -132,6 +192,39 @@ class HomeScreen extends ConsumerWidget {
               error: (error, stack) => Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text('Error loading upcoming movies: $error'),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Now Playing Section
+            nowPlayingMovies.when(
+              data: (movies) => MovieSection(
+                title: 'Now Playing',
+                children: movies.take(20).map((movie) {
+                  return MovieCard(
+                    movie: movie,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              MovieDetailScreen(movieId: movie.id),
+                        ),
+                      );
+                    },
+                  );
+                }).toList(),
+                onSeeAll: () {
+                  ref.read(nowPlayingFeedProvider.notifier).loadMore();
+                },
+              ),
+              loading: () => MovieSection(
+                title: 'Now Playing',
+                children: List.generate(5, (index) => const MovieCardShimmer()),
+              ),
+              error: (error, stack) => Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text('Error loading now playing movies: $error'),
               ),
             ),
 

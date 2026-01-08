@@ -4,6 +4,8 @@ import '../../domain/entities/news_article_entity.dart';
 import '../providers/news_providers.dart';
 import '../widgets/news_responsive_widgets.dart';
 import '../widgets/enhanced_news_card.dart';
+import 'package:go_router/go_router.dart';
+import '../../core/router/app_router.dart';
 
 class NewsScreen extends ConsumerStatefulWidget {
   const NewsScreen({super.key});
@@ -89,13 +91,13 @@ class _NewsScreenState extends ConsumerState<NewsScreen>
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              Navigator.pushNamed(context, '/news/search');
+              context.push(AppRoutes.newsSearch);
             },
           ),
           IconButton(
             icon: const Icon(Icons.bookmarks),
             onPressed: () {
-              Navigator.pushNamed(context, '/news/bookmarks');
+              context.push(AppRoutes.newsBookmarks);
             },
           ),
         ],
@@ -149,7 +151,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen>
   }
 
   void _openArticle(NewsArticleEntity article) {
-    Navigator.pushNamed(context, '/news/article', arguments: article);
+    context.push(AppRoutes.newsArticle, extra: article);
   }
 
   void _toggleBookmark(NewsArticleEntity article) {

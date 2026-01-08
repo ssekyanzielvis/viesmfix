@@ -1,21 +1,31 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/news_article_entity.dart';
 import '../../domain/repositories/news_repository.dart';
 import '../../domain/usecases/news_usecases.dart';
 import '../../data/datasources/news_remote_datasource.dart';
 import '../../data/datasources/news_local_datasource.dart';
 import '../../data/repositories/news_repository_impl.dart';
+import 'common_providers.dart';
 
 // Data sources
 final dioProvider = Provider<Dio>((ref) => Dio());
 
+final supabaseClientProvider = Provider<SupabaseClient>((ref) {
+  return Supabase.instance.client;
+});
+
 final newsRemoteDataSourceProvider = Provider<NewsRemoteDataSource>((ref) {
-  return NewsRemoteDataSource(dio: ref.watch(dioProvider));
+  return NewsRemoteDataSource(
+    dio: ref.watch(dioProvider),
+    supabase: ref.watch(supabaseClientProvider),
+  );
 });
 
 final newsLocalDataSourceProvider = Provider<NewsLocalDataSource>((ref) {
-  throw UnimplementedError('SharedPreferences must be initialized first');
+  final prefs = ref.watch(sharedPreferencesProvider);
+  return NewsLocalDataSource(prefs);
 });
 
 // Repository

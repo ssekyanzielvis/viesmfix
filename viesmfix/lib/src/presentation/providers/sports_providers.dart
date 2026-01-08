@@ -8,6 +8,7 @@ import '../../domain/usecases/sports_usecases.dart';
 import '../../data/datasources/sports_remote_datasource.dart';
 import '../../data/datasources/sports_local_datasource.dart';
 import '../../data/repositories/sports_repository_impl.dart';
+import 'common_providers.dart';
 
 // Shared Dio provider
 final dioProvider = Provider<Dio>((ref) => Dio());
@@ -25,7 +26,8 @@ final sportsRemoteDataSourceProvider = Provider<SportsRemoteDataSource>((ref) {
 });
 
 final sportsLocalDataSourceProvider = Provider<SportsLocalDataSource>((ref) {
-  throw UnimplementedError('SharedPreferences must be initialized first');
+  final prefs = ref.watch(sharedPreferencesProvider);
+  return SportsLocalDataSource(prefs);
 });
 
 // Repository

@@ -5,6 +5,8 @@ import '../providers/sports_providers.dart';
 import 'package:intl/intl.dart';
 import '../utils/sports_navigation.dart';
 import '../widgets/sports_countdown_widget.dart';
+import 'package:go_router/go_router.dart';
+import '../../core/router/app_router.dart';
 
 /// Main Sports Screen with Live and Upcoming tabs
 class SportsScreen extends ConsumerStatefulWidget {
@@ -50,13 +52,13 @@ class _SportsScreenState extends ConsumerState<SportsScreen>
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              Navigator.pushNamed(context, '/sports/search');
+              context.push(AppRoutes.sportsSearch);
             },
           ),
           IconButton(
             icon: const Icon(Icons.bookmark_outline),
             onPressed: () {
-              Navigator.pushNamed(context, '/sports/bookmarks');
+              context.push(AppRoutes.sportsBookmarks);
             },
           ),
           IconButton(
@@ -68,7 +70,7 @@ class _SportsScreenState extends ConsumerState<SportsScreen>
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              Navigator.pushNamed(context, '/sports/settings');
+              context.push(AppRoutes.sportsSettings);
             },
           ),
         ],

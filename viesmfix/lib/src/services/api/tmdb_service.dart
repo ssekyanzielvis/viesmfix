@@ -33,6 +33,12 @@ class TMDBService {
           if (key.isNotEmpty) {
             if (_useV4Token) {
               options.headers['Authorization'] = 'Bearer $key';
+              developer.log(
+                _useV4Token
+                    ? 'TMDB auth: using v4 bearer token'
+                    : 'TMDB auth: using v3 api_key query parameter',
+                name: 'TMDB',
+              );
             } else {
               // v3 key via query parameter
               final qp = Map<String, dynamic>.from(options.queryParameters);
@@ -220,6 +226,20 @@ class TMDBService {
       return genres;
     } catch (e) {
       throw Exception('Failed to fetch genres: $e');
+    }
+  }
+
+  // Get watch providers (availability by region)
+  Future<Map<String, dynamic>> getWatchProviders(int movieId) async {
+    try {
+      final response = await _dio.get('/movie/$movieId/watch/providers');
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        return data;
+      }
+      return <String, dynamic>{};
+    } catch (e) {
+      throw Exception('Failed to fetch watch providers: $e');
     }
   }
 }

@@ -78,6 +78,9 @@ dependencies:
   url_launcher: ^6.3.1
   share_plus: ^10.1.3
   dartz: ^0.10.1
+  
+  # Video Embeds
+  youtube_player_iframe: ^5.1.2
 
 dev_dependencies:
   flutter_test:

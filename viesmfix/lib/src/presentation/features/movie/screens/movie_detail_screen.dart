@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../domain/entities/movie_entity.dart';
 import '../../../../core/constants/environment.dart';
 import '../../../../services/api/tmdb_service.dart';
 import '../../../providers/movie_providers.dart';
+import '../../../utils/responsive.dart';
 
 class MovieDetailScreen extends ConsumerWidget {
   final int movieId;
@@ -31,7 +35,7 @@ class MovieDetailScreen extends ConsumerWidget {
             slivers: [
               // App Bar with Backdrop
               SliverAppBar(
-                expandedHeight: 300,
+                expandedHeight: Responsive.appBarExpandedHeight(context),
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(
                   background: Stack(
@@ -80,15 +84,15 @@ class MovieDetailScreen extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(8),
                               child: CachedNetworkImage(
                                 imageUrl: posterUrl,
-                                width: 120,
-                                height: 180,
+                                width: Responsive.posterWidth(context),
+                                height: Responsive.posterHeight(context),
                                 fit: BoxFit.cover,
                               ),
                             )
                           else
                             Container(
-                              width: 120,
-                              height: 180,
+                              width: Responsive.posterWidth(context),
+                              height: Responsive.posterHeight(context),
                               decoration: BoxDecoration(
                                 color: Colors.grey[900],
                                 borderRadius: BorderRadius.circular(8),
@@ -236,8 +240,67 @@ class MovieDetailScreen extends ConsumerWidget {
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 12),
+                            // Actions: Watch Now + Trailer
+                            Wrap(
+                              spacing: 12,
+                              runSpacing: 8,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    final region =
+                                        Environment.defaultLanguage.contains(
+                                          '-',
+                                        )
+                                        ? Environment.defaultLanguage
+                                              .split('-')
+                                              .last
+                                        : 'US';
+                                    context.pushNamed(
+                                      'where-to-watch',
+                                      pathParameters: {
+                                        'id': movie.id.toString(),
+                                      },
+                                      queryParameters: {'country': region},
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize: Size(
+                                      Responsive.buttonMinWidth(context),
+                                      Responsive.buttonHeight(context),
+                                    ),
+                                  ),
+                                  icon: const Icon(Icons.tv),
+                                  label: const Text('Where to Watch'),
+                                ),
+                                ElevatedButton.icon(
+                                  onPressed: () =>
+                                      _showWatchOptions(context, movie),
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize: Size(
+                                      Responsive.buttonMinWidth(context),
+                                      Responsive.buttonHeight(context),
+                                    ),
+                                  ),
+                                  icon: const Icon(Icons.play_circle_fill),
+                                  label: const Text('Watch Now'),
+                                ),
+                                if (_findYoutubeTrailerKey(movie) != null)
+                                  ElevatedButton.icon(
+                                    onPressed: () => _openTrailer(movie),
+                                    style: ElevatedButton.styleFrom(
+                                      minimumSize: Size(
+                                        Responsive.buttonMinWidth(context),
+                                        Responsive.buttonHeight(context),
+                                      ),
+                                    ),
+                                    icon: const Icon(Icons.ondemand_video),
+                                    label: const Text('Watch Trailer'),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
                             SizedBox(
-                              height: 140,
+                              height: Responsive.castListHeight(context),
                               child: ListView.separated(
                                 scrollDirection: Axis.horizontal,
                                 itemCount: movie.cast.take(10).length,
@@ -316,7 +379,7 @@ class MovieDetailScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 12),
                             SizedBox(
-                              height: 200,
+                              height: Responsive.similarListHeight(context),
                               child: ListView.separated(
                                 scrollDirection: Axis.horizontal,
                                 itemCount: movie.similar.take(10).length,
@@ -420,4 +483,200 @@ class MovieDetailScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+String? _findYoutubeTrailerKey(MovieDetailEntity movie) {
+  final results = movie.videos;
+  for (final v in results) {
+    final isYoutube = v.site.toLowerCase() == 'youtube';
+    final isTrailerLike =
+        v.type.toLowerCase() == 'trailer' || v.type.toLowerCase() == 'teaser';
+    if (isYoutube && isTrailerLike && v.key.isNotEmpty) {
+      return v.key;
+    }
+  }
+  // Fallback: first YouTube video
+  for (final v in results) {
+    if (v.site.toLowerCase() == 'youtube' && v.key.isNotEmpty) {
+      return v.key;
+    }
+  }
+  return null;
+}
+
+Future<void> _openTrailer(MovieDetailEntity movie) async {
+  final key = _findYoutubeTrailerKey(movie);
+  if (key == null) return;
+  final uri = Uri.parse('https://www.youtube.com/watch?v=$key');
+  if (await canLaunchUrl(uri)) {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+}
+
+Future<void> _showWatchOptions(
+  BuildContext context,
+  MovieDetailEntity movie,
+) async {
+  final title = movie.title;
+  // Optional: include release year to refine search
+  final year = (movie.releaseDate != null && movie.releaseDate!.length >= 4)
+      ? movie.releaseDate!.substring(0, 4)
+      : null;
+
+  await showModalBottomSheet(
+    context: context,
+    builder: (context) {
+      final tmdb = TMDBService();
+      final region = Environment.defaultLanguage.contains('-')
+          ? Environment.defaultLanguage.split('-').last
+          : 'US';
+      return FutureBuilder<Map<String, dynamic>>(
+        future: tmdb.getWatchProviders(movie.id),
+        builder: (context, snapshot) {
+          final results = snapshot.data != null
+              ? (snapshot.data!['results'] as Map<String, dynamic>?)
+              : null;
+          final regionData = results != null
+              ? (results[region] ??
+                    results['US'] ??
+                    (results.isNotEmpty ? results.values.first : null))
+              : null;
+
+          List<dynamic> collectProviders(dynamic rd) {
+            if (rd is Map<String, dynamic>) {
+              final lists = <List<dynamic>>[];
+              for (final key in ['flatrate', 'ads', 'free', 'rent', 'buy']) {
+                final v = rd[key];
+                if (v is List<dynamic>) lists.add(v);
+              }
+              return lists.expand((e) => e).toList();
+            }
+            return const [];
+          }
+
+          final providers = collectProviders(regionData);
+          final justWatchLink = (regionData is Map<String, dynamic>)
+              ? (regionData['link'] as String?)
+              : null;
+
+          String buildSearchUrl(String providerName) {
+            final query = year != null ? '$title $year' : title;
+            return 'https://www.google.com/search?q=' +
+                Uri.encodeComponent('watch $query on $providerName');
+          }
+
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Watch "$title"',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  else if (providers.isNotEmpty) ...[
+                    Text(
+                      'Available via:',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: providers.map((p) {
+                        final name = (p is Map<String, dynamic>)
+                            ? (p['provider_name'] as String?) ?? 'Provider'
+                            : 'Provider';
+                        final url = justWatchLink ?? buildSearchUrl(name);
+                        return OutlinedButton.icon(
+                          onPressed: () async {
+                            final uri = Uri.parse(url);
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(
+                                uri,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            }
+                            if (context.mounted) Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.open_in_new),
+                          label: Text(name),
+                        );
+                      }).toList(),
+                    ),
+                    if (justWatchLink != null) ...[
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          final uri = Uri.parse(justWatchLink);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          }
+                          if (context.mounted) Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.tv),
+                        label: const Text('Open on JustWatch'),
+                      ),
+                    ],
+                  ] else ...[
+                    Text(
+                      'Couldn\'t find availability. Try searching:',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children:
+                          [
+                            'Netflix',
+                            'Prime Video',
+                            'Disney+',
+                            'Hulu',
+                            'Max',
+                            'Apple TV',
+                            'JustWatch',
+                            'Google',
+                          ].map((name) {
+                            final url = buildSearchUrl(name);
+                            return OutlinedButton.icon(
+                              onPressed: () async {
+                                final uri = Uri.parse(url);
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(
+                                    uri,
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                }
+                                if (context.mounted) Navigator.pop(context);
+                              },
+                              icon: const Icon(Icons.open_in_new),
+                              label: Text(name),
+                            );
+                          }).toList(),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
 }

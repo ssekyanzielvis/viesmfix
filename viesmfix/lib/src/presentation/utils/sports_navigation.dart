@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 import '../../domain/entities/sport_event_entity.dart';
 import '../../core/constants/environment.dart';
+import '../../core/router/app_router.dart';
 
 /// Sports navigation utilities
 class SportsNavigation {
@@ -11,7 +13,7 @@ class SportsNavigation {
       _showFeatureDisabledMessage(context);
       return;
     }
-    await Navigator.pushNamed(context, '/sports');
+    await context.push(AppRoutes.sports);
   }
 
   /// Navigate to match detail
@@ -19,22 +21,22 @@ class SportsNavigation {
     BuildContext context,
     SportEventEntity match,
   ) async {
-    await Navigator.pushNamed(context, '/sportsMatchDetail', arguments: match);
+    await context.push(AppRoutes.sportsMatchDetail, extra: match);
   }
 
   /// Navigate to sports search
   static Future<void> toSportsSearch(BuildContext context) async {
-    await Navigator.pushNamed(context, '/sportsSearch');
+    await context.push(AppRoutes.sportsSearch);
   }
 
   /// Navigate to my sports/favorites
   static Future<void> toMySports(BuildContext context) async {
-    await Navigator.pushNamed(context, '/mySports');
+    await context.push(AppRoutes.mySports);
   }
 
   /// Navigate to sports settings
   static Future<void> toSportsSettings(BuildContext context) async {
-    await Navigator.pushNamed(context, '/sportsSettings');
+    await context.push(AppRoutes.sportsSettings);
   }
 
   static void _showFeatureDisabledMessage(BuildContext context) {

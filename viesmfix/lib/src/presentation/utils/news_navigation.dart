@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/environment.dart';
-import '../screens/news_screen.dart';
+import '../../core/router/app_router.dart';
 
 /// News Navigation Helper
 ///
@@ -15,10 +16,7 @@ class NewsNavigation {
       _showFeatureDisabledSnackBar(context);
       return;
     }
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const NewsScreen()),
-    );
+    context.push(AppRoutes.news);
   }
 
   /// Navigate to news search
@@ -27,7 +25,7 @@ class NewsNavigation {
       _showFeatureDisabledSnackBar(context);
       return;
     }
-    Navigator.pushNamed(context, '/news/search');
+    context.push(AppRoutes.newsSearch);
   }
 
   /// Navigate to bookmarked articles
@@ -36,7 +34,7 @@ class NewsNavigation {
       _showFeatureDisabledSnackBar(context);
       return;
     }
-    Navigator.pushNamed(context, '/news/bookmarks');
+    context.push(AppRoutes.newsBookmarks);
   }
 
   /// Check if news feature is enabled

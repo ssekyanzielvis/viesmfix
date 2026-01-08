@@ -22,3 +22,10 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+// Suppress obsolete Java option warnings (e.g., -source 8/-target 8) from transitive modules
+subprojects {
+    tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
+        options.compilerArgs.add("-Xlint:-options")
+    }
+}

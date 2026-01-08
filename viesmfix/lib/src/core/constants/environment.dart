@@ -79,4 +79,14 @@ abstract class Environment {
   // Default values
   static const String defaultAvatarUrl =
       'https://ui-avatars.com/api/?name=User&background=0F0F0F&color=fff';
+
+  // Edge Function names (override via --dart-define if your deployment differs)
+  static const String newsFunctionName = String.fromEnvironment(
+    'NEWS_FUNCTION_NAME',
+    defaultValue: 'news-proxy',
+  );
+  static const String sportsFunctionName = String.fromEnvironment(
+    'SPORTS_FUNCTION_NAME',
+    defaultValue: 'sports-api',
+  );
 }

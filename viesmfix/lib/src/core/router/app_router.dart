@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../presentation/features/home/screens/home_screen.dart';
 import '../../presentation/features/movie/screens/movie_detail_screen.dart';
+import '../../presentation/features/movie/screens/where_to_watch_screen.dart';
 import '../../presentation/features/search/screens/search_screen.dart';
 import '../../presentation/screens/news_screen.dart';
 import '../../presentation/screens/news_search_screen.dart';
@@ -58,6 +59,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = int.parse(state.pathParameters['id']!);
           return MovieDetailScreen(movieId: id);
+        },
+      ),
+      GoRoute(
+        path: '/movie/:id/watch',
+        name: 'where-to-watch',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          final country = state.uri.queryParameters['country'] ?? 'US';
+          return WhereToWatchScreen(movieId: id, countryCode: country);
         },
       ),
       GoRoute(
