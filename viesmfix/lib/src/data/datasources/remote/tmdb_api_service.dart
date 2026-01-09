@@ -13,7 +13,7 @@ class TmdbApiService {
     _dio = Dio(
       BaseOptions(
         baseUrl: _baseUrl,
-        connectTimeout: const Duration(seconds: 10),
+        connectTimeout: const Duration(seconds: 30), // Increased timeout
         receiveTimeout: const Duration(seconds: 30),
         headers: {
           'Authorization': 'Bearer ${Environment.tmdbApiKey}',

@@ -16,11 +16,12 @@ class TMDBService {
     _useV4Token =
         rawKey.isNotEmpty && (rawKey.startsWith('eyJ') || rawKey.contains('.'));
 
+    // CORRECTION: Create the Dio instance with BaseOptions
     _dio = Dio(
       BaseOptions(
         baseUrl: _baseUrl,
-        connectTimeout: Environment.apiConnectTimeout,
-        receiveTimeout: Environment.apiReceiveTimeout,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
         headers: const {'Content-Type': 'application/json;charset=utf-8'},
       ),
     );
@@ -33,24 +34,22 @@ class TMDBService {
           if (key.isNotEmpty) {
             if (_useV4Token) {
               options.headers['Authorization'] = 'Bearer $key';
-              developer.log(
-                _useV4Token
-                    ? 'TMDB auth: using v4 bearer token'
-                    : 'TMDB auth: using v3 api_key query parameter',
-                name: 'TMDB',
-              );
+              developer.log('TMDB auth: using v4 bearer token', name: 'TMDB');
             } else {
               // v3 key via query parameter
               final qp = Map<String, dynamic>.from(options.queryParameters);
               qp.putIfAbsent('api_key', () => key);
               options.queryParameters = qp;
+              developer.log(
+                'TMDB auth: using v3 api_key query parameter',
+                name: 'TMDB',
+              );
             }
           }
           handler.next(options);
         },
       ),
     );
-
     // Add logging in debug mode
     if (Environment.isDebug) {
       _dio.interceptors.add(
@@ -84,8 +83,14 @@ class TMDBService {
         '/trending/movie/$timeWindow',
         queryParameters: {'page': page, 'language': language},
       );
-
       return TMDBMovieListResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      final statusMessage = e.response?.statusMessage;
+      final errorData = e.response?.data;
+      throw Exception(
+        'Failed to fetch trending movies: DioException: statusCode=$statusCode, statusMessage=$statusMessage, errorData=$errorData, error=$e',
+      );
     } catch (e) {
       throw Exception('Failed to fetch trending movies: $e');
     }
@@ -101,8 +106,14 @@ class TMDBService {
         '/movie/popular',
         queryParameters: {'page': page, 'language': language},
       );
-
       return TMDBMovieListResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      final statusMessage = e.response?.statusMessage;
+      final errorData = e.response?.data;
+      throw Exception(
+        'Failed to fetch popular movies: DioException: statusCode=$statusCode, statusMessage=$statusMessage, errorData=$errorData, error=$e',
+      );
     } catch (e) {
       throw Exception('Failed to fetch popular movies: $e');
     }
@@ -118,8 +129,14 @@ class TMDBService {
         '/movie/upcoming',
         queryParameters: {'page': page, 'language': language},
       );
-
       return TMDBMovieListResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      final statusMessage = e.response?.statusMessage;
+      final errorData = e.response?.data;
+      throw Exception(
+        'Failed to fetch upcoming movies: DioException: statusCode=$statusCode, statusMessage=$statusMessage, errorData=$errorData, error=$e',
+      );
     } catch (e) {
       throw Exception('Failed to fetch upcoming movies: $e');
     }
@@ -135,8 +152,14 @@ class TMDBService {
         '/movie/now_playing',
         queryParameters: {'page': page, 'language': language},
       );
-
       return TMDBMovieListResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      final statusMessage = e.response?.statusMessage;
+      final errorData = e.response?.data;
+      throw Exception(
+        'Failed to fetch now playing movies: DioException: statusCode=$statusCode, statusMessage=$statusMessage, errorData=$errorData, error=$e',
+      );
     } catch (e) {
       throw Exception('Failed to fetch now playing movies: $e');
     }
@@ -155,8 +178,14 @@ class TMDBService {
           'append_to_response': 'credits,videos,similar',
         },
       );
-
       return TMDBMovieDetailModel.fromJson(response.data);
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      final statusMessage = e.response?.statusMessage;
+      final errorData = e.response?.data;
+      throw Exception(
+        'Failed to fetch movie details: DioException: statusCode=$statusCode, statusMessage=$statusMessage, errorData=$errorData, error=$e',
+      );
     } catch (e) {
       throw Exception('Failed to fetch movie details: $e');
     }
